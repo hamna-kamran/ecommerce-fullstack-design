@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
+import axios from 'axios';
 import logo from '../assets/logo-symbol.png';
 import brand from '../assets/Brand.png';
 import profileIcon from '../assets/Profile.png';
@@ -13,13 +14,6 @@ import flagNEWZEALAND from '../assets/Flag_of_New_Zealand.svg.png';
 import flagCHINA from '../assets/CHINA.png';
 import gridIcon from '../assets/gridviewbutton.png';
 import listIcon from '../assets/listviewbutton.png';
-import listviewimg1 from '../assets/listviewheadphones.png';
-import listviewimg2 from '../assets/listviewlaptop.png';
-import listviewimg3 from '../assets/listviewphone.png';
-import listviewimg4 from '../assets/listviewphone2.png';
-import listviewimg5 from '../assets/listviewtab.png';
-import listviewimg6 from '../assets/listviewwatch.png';
-import listviewbtn from '../assets/heartbtn.png';
 import appicon1 from '../assets/facebook3.png';
 import appicon2 from '../assets/twitter3.png';
 import appicon3 from '../assets/instagram3.png';
@@ -31,11 +25,45 @@ import logoimg from '../assets/logo-colored.png';
 
 
 export default function ProductView() {
+
+   const [products, setProducts] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
+
+
+  useEffect(() => {
+    axios.get('http://localhost:5000/api/products')
+      .then((res) => {
+        setProducts(res.data);
+      })
+      .catch((err) => {
+        console.error('Failed to fetch products:', err);
+      });
+  }, []);
+const filteredProducts = products.filter((product) => {
+  // Only filter by category if not "All"
+  const matchesCategory =
+    selectedCategory === 'All' || product.category.toLowerCase() === selectedCategory.toLowerCase();
+
+  const matchesSearch = searchQuery.trim() === '' || (
+    product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    product.category.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  return matchesCategory && matchesSearch;
+});
+
+
+
+  
   const [selectedHelp, setSelectedHelp] = useState('Help');
   const [shipTo, setShipTo] = useState({ name: 'USA', flag: flagUSD });
 
   const handleHelpSelect = (label) => setSelectedHelp(label);
   const handleShipToSelect = (name, flag) => setShipTo({ name, flag });
+
+  
+
 
   return (
     <>
@@ -49,19 +77,37 @@ export default function ProductView() {
             <img src={brand} alt="Brand" style={{ height: '40px' }} />
           </div>
 
-          {/* Category Dropdown + Search */}
-          <div className="col col-md-6 d-flex">
-            <select className="form-select w-auto me-2">
-              <option>All Categories</option>
-              <option>Electronics</option>
-              <option>Fashion</option>
-              <option>Home</option>
-            </select>
-            <input type="text" className="form-control me-2" placeholder="Search products..." />
-            <button className="btn btn-primary">Search</button>
-          </div>
+      <div className="container mt-4">
+  {/* Category + Search */}
+  <div className="row mb-4">
+    <div className="col-md-8 d-flex">
+      <select
+        className="form-select w-auto me-2"
+        value={selectedCategory}
+        onChange={(e) => setSelectedCategory(e.target.value)}
+      >
+        <option value="">All Categories</option>
+        <option value="Electronics">Electronics</option>
+        <option value="Clothing">Clothing</option>
+        <option value="Accessories">Accessories</option>
+        <option value="Kitchen">Kitchen</option>
+        <option value="Bags">Bags</option>
+      </select>
 
-          {/* Right-side Icons */}
+      <input
+        type="text"
+        className="form-control me-2"
+        placeholder="Search products..."
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+      />
+
+      <button className="btn btn-primary" disabled>
+        Search
+      </button>
+    </div>
+  </div>
+   {/* Right-side Icons */}
           <div className="col-auto d-flex align-items-center">
             <HeaderIcon img={profileIcon} onClick={() => console.log('Go to Profile')} />
             <HeaderIcon img={ordersIcon} onClick={() => console.log('Go to Orders')} />
@@ -69,8 +115,14 @@ export default function ProductView() {
             <HeaderIcon img={cartIcon} onClick={() => console.log('Go to Cart')} />
           </div>
 
-        </div>
-      </div>
+
+  
+</div>
+</div>
+</div>
+
+         
+
 
       {/* Divider */}
       <div className="border-bottom my-2"></div>
@@ -340,147 +392,50 @@ export default function ProductView() {
         </div>
       </div>
 
-      <div className="row">
+      
 
-  {/* Product 1 */}
-  <div className="col-12 mb-4">
-    <div className="d-flex border rounded shadow-sm p-3 bg-white position-relative">
-      <div style={{ width: '120px', height: '120px', flexShrink: 0 }}>
-        <img src={listviewimg1} alt="Wireless Headphones" className="img-fluid rounded" style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
-      </div>
-      <div className="ms-3 flex-grow-1">
-        <button className="btn btn-sm btn-light position-absolute" style={{ top: '10px', right: '10px' }}>
-          <img src={listviewbtn} alt="heart" width="30" height="30" />
-        </button>
-        <h5 className="fw-semibold mb-1">Wireless Headphones</h5>
-        <p className="text-muted mb-1">Price: ₹25000</p>
-        <div className="mb-2">
-          <span className="text-warning">★</span>
-          <span className="text-warning">★</span>
-          <span className="text-warning">★</span>
-          <span className="text-warning">★</span>
-          <span className="text-muted">★</span>
-        </div>
-        <button className="btn btn-sm btn-primary">View Details</button>
-      </div>
-    </div>
-  </div>
+    {/* Product Grid */}
+  <div className="row">
+  {filteredProducts.length === 0 ? (
+    <p>No products found.</p>
+  ) : (
+    filteredProducts.map((product) => (
+      <div key={product._id} className="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
+        <div className="card h-100">
+          <img
+            src={`http://localhost:5000/${product.image}`}
+            className="card-img-top"
+            alt={product.name}
+            style={{ height: '200px', objectFit: 'cover' }}
+          />
+          <div className="card-body d-flex flex-column">
+            <h5 className="card-title">{product.name}</h5>
+            <p className="text-muted">{product.category}</p>
+            <p>{product.description}</p>
+            <p className="fw-bold text-primary">${product.price}</p>
+            <p className="text-muted small">Stock: {product.stock}</p>
 
-  {/* Product 2 */}
-  <div className="col-12 mb-4">
-    <div className="d-flex border rounded shadow-sm p-3 bg-white position-relative">
-      <div style={{ width: '120px', height: '120px', flexShrink: 0 }}>
-        <img src={listviewimg2} alt="Bluetooth Speaker" className="img-fluid rounded" style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
-      </div>
-      <div className="ms-3 flex-grow-1">
-        <button className="btn btn-sm btn-light position-absolute" style={{ top: '10px', right: '10px' }}>
-          <img src={listviewbtn} alt="heart" width="30" height="30" />
-        </button>
-        <h5 className="fw-semibold mb-1">Laptop</h5>
-        <p className="text-muted mb-1">Price: ₹18000</p>
-        <div className="mb-2">
-          <span className="text-warning">★</span>
-          <span className="text-warning">★</span>
-          <span className="text-warning">★</span>
-          <span className="text-warning">★</span>
-          <span className="text-warning">★</span>
+            <div className="mt-auto d-flex justify-content-between">
+              <button
+                className="btn btn-sm btn-outline-primary"
+                // onClick={() => handleViewDetails(product._id)}
+              >
+                See Details
+              </button>
+
+              <button
+                className="btn btn-sm btn-success"
+                // onClick={() => handleAddToCart(product)}
+              >
+                Add to Cart
+              </button>
+            </div>
+          </div>
         </div>
-        <button className="btn btn-sm btn-primary">View Details</button>
       </div>
-    </div>
-  </div>
-  {/* Product 3 */}
-  <div className="col-12 mb-4">
-    <div className="d-flex border rounded shadow-sm p-3 bg-white position-relative">
-      <div style={{ width: '120px', height: '120px', flexShrink: 0 }}>
-        <img src={listviewimg3} alt="Bluetooth Speaker" className="img-fluid rounded" style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
-      </div>
-      <div className="ms-3 flex-grow-1">
-        <button className="btn btn-sm btn-light position-absolute" style={{ top: '10px', right: '10px' }}>
-          <img src={listviewbtn} alt="heart" width="30" height="30" />
-        </button>
-        <h5 className="fw-semibold mb-1">Redmi note 12</h5>
-        <p className="text-muted mb-1">Price: ₹18000</p>
-        <div className="mb-2">
-          <span className="text-warning">★</span>
-          <span className="text-warning">★</span>
-          <span className="text-warning">★</span>
-          <span className="text-warning">★</span>
-          <span className="text-warning">★</span>
-        </div>
-        <button className="btn btn-sm btn-primary">View Details</button>
-      </div>
-    </div>
-  </div>
-  {/* Product 4 */}
-  <div className="col-12 mb-4">
-    <div className="d-flex border rounded shadow-sm p-3 bg-white position-relative">
-      <div style={{ width: '120px', height: '120px', flexShrink: 0 }}>
-        <img src={listviewimg4} alt="Bluetooth Speaker" className="img-fluid rounded" style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
-      </div>
-      <div className="ms-3 flex-grow-1">
-        <button className="btn btn-sm btn-light position-absolute" style={{ top: '10px', right: '10px' }}>
-          <img src={listviewbtn} alt="heart" width="30" height="30" />
-        </button>
-        <h5 className="fw-semibold mb-1">Huawei Phone</h5>
-        <p className="text-muted mb-1">Price: ₹18000</p>
-        <div className="mb-2">
-          <span className="text-warning">★</span>
-          <span className="text-warning">★</span>
-          <span className="text-warning">★</span>
-          <span className="text-warning">★</span>
-          <span className="text-warning">★</span>
-        </div>
-        <button className="btn btn-sm btn-primary">View Details</button>
-      </div>
-    </div>
-  </div>
-  {/* Product 5 */}
-  <div className="col-12 mb-4">
-    <div className="d-flex border rounded shadow-sm p-3 bg-white position-relative">
-      <div style={{ width: '120px', height: '120px', flexShrink: 0 }}>
-        <img src={listviewimg5} alt="Bluetooth Speaker" className="img-fluid rounded" style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
-      </div>
-      <div className="ms-3 flex-grow-1">
-        <button className="btn btn-sm btn-light position-absolute" style={{ top: '10px', right: '10px' }}>
-          <img src={listviewbtn} alt="heart" width="30" height="30" />
-        </button>
-        <h5 className="fw-semibold mb-1">Redmi Tablet</h5>
-        <p className="text-muted mb-1">Price: ₹18000</p>
-        <div className="mb-2">
-          <span className="text-warning">★</span>
-          <span className="text-warning">★</span>
-          <span className="text-warning">★</span>
-          <span className="text-warning">★</span>
-          <span className="text-warning">★</span>
-        </div>
-        <button className="btn btn-sm btn-primary">View Details</button>
-      </div>
-    </div>
-  </div>
-  {/* Product 6 */}
-  <div className="col-12 mb-4">
-    <div className="d-flex border rounded shadow-sm p-3 bg-white position-relative">
-      <div style={{ width: '120px', height: '120px', flexShrink: 0 }}>
-        <img src={listviewimg6} alt="Bluetooth Speaker" className="img-fluid rounded" style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
-      </div>
-      <div className="ms-3 flex-grow-1">
-        <button className="btn btn-sm btn-light position-absolute" style={{ top: '10px', right: '10px' }}>
-           <img src={listviewbtn} alt="heart" width="30" height="30" />
-        </button>
-        <h5 className="fw-semibold mb-1">Huawei Watch</h5>
-        <p className="text-muted mb-1">Price: ₹18000</p>
-        <div className="mb-2">
-          <span className="text-warning">★</span>
-          <span className="text-warning">★</span>
-          <span className="text-warning">★</span>
-          <span className="text-warning">★</span>
-          <span className="text-warning">★</span>
-        </div>
-        <button className="btn btn-sm btn-primary">View Details</button>
-      </div>
-    </div>
-  </div>
+    ))
+  )}
+</div>
 
   {/* Product list above this */}
 
@@ -518,7 +473,7 @@ export default function ProductView() {
  
   </div>
   
-</div>
+
 
 {/* Subscribe Newsletter Section */}
 <div className="container mb-5">
