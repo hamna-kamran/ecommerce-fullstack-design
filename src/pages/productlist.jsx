@@ -1,5 +1,7 @@
 import React, { useState,useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Cart from '../pages/cart';
 import logo from '../assets/logo-symbol.png';
 import brand from '../assets/Brand.png';
 import profileIcon from '../assets/Profile.png';
@@ -26,9 +28,26 @@ import logoimg from '../assets/logo-colored.png';
 
 export default function ProductView() {
 
-   const [products, setProducts] = useState([]);
+  const navigate = useNavigate();
+  const [products, setProducts] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
+
+  const addToCart = async (productId) => {
+  try {
+    const token = localStorage.getItem('token');
+    await axios.post(
+      'http://localhost:5000/api/cart/add',
+      { productId, quantity: 1 },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    alert('Product added to cart');
+  } catch (err) {
+    console.error('Add to cart error:', err.response?.data || err.message);
+    alert(`Failed to add to cart: ${err.response?.data?.message || err.message}`);
+  }
+};
+
 
 
   useEffect(() => {
@@ -112,7 +131,7 @@ const filteredProducts = products.filter((product) => {
             <HeaderIcon img={profileIcon} onClick={() => console.log('Go to Profile')} />
             <HeaderIcon img={ordersIcon} onClick={() => console.log('Go to Orders')} />
             <HeaderIcon img={msgIcon} onClick={() => console.log('Go to Messages')} />
-            <HeaderIcon img={cartIcon} onClick={() => console.log('Go to Cart')} />
+            <HeaderIcon img={cartIcon} onClick={() => navigate('/cart')} />
           </div>
 
 
@@ -417,18 +436,18 @@ const filteredProducts = products.filter((product) => {
 
             <div className="mt-auto d-flex justify-content-between">
               <button
-                className="btn btn-sm btn-outline-primary"
-                // onClick={() => handleViewDetails(product._id)}
-              >
-                See Details
-              </button>
+  className="btn btn-sm btn-outline-primary"
+  onClick={() => navigate(`/product/${product._id}`)}
+>
+  See Details
+</button>
 
               <button
-                className="btn btn-sm btn-success"
-                // onClick={() => handleAddToCart(product)}
-              >
-                Add to Cart
-              </button>
+  className="btn btn-sm btn-success"
+  onClick={() => addToCart(product._id)}
+>
+  Add to Cart
+</button>
             </div>
           </div>
         </div>

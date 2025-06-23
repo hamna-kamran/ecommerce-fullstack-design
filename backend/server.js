@@ -5,6 +5,8 @@ const cors = require('cors');
 const dotenv = require('dotenv');  // ✅ Load environment variables
 const productRoutes = require('./Routes/productRoute');
 const connectDB = require('./config/db');  // ✅ Import DB connection
+const authRoutes = require('./Routes/authRoute');
+const cartRoutes = require('./Routes/cartRoutes');
 
 dotenv.config();  // ✅ Call dotenv.config() before anything else
 connectDB();      // ✅ Connect to MongoDB
@@ -19,7 +21,10 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // API route
 app.use('/api/products', productRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/cart', cartRoutes);
+
 
 // Start server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

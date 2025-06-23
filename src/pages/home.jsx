@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import logo from '../assets/logo-symbol.png';
 import brand from '../assets/Brand.png';
 import profileIcon from '../assets/Profile.png';
@@ -75,6 +76,13 @@ import logoimg from '../assets/logo-colored.png';
 
 
 export default function Home() {
+
+   const navigate = useNavigate();
+
+  const handleSeeAllClick = () => {
+    navigate('/ProductView'); // Must match the path defined in App.js
+  };
+
 
    const [products, setProducts] = useState([]);
 
@@ -213,7 +221,9 @@ export default function Home() {
             <button className="btn btn-outline-primary">Sports</button>
             <button className="btn btn-outline-primary">Pets</button>
             <button className="btn btn-outline-primary">Machinery Tools</button>
-            <button className="btn btn-outline-primary">More</button>
+                  <button className="btn btn-outline-primary" onClick={handleSeeAllClick}>
+        See All
+      </button>
           </div>
         </div>
 
@@ -245,11 +255,11 @@ export default function Home() {
               style={{ width: '40px', height: '40px', objectFit: 'cover' }}
             />
             <div>
-              <p className="mb-1 fw-semibold">Hi, User<br />Let’s get started</p>
-              <div className="d-flex gap-2">
+              <p className="mb-1 fw-semibold">Hi,<br />Let’s get started</p>
+              {/* <div className="d-flex gap-2">
                 <button className="btn btn-primary btn-sm">Join Now</button>
                 <button className="btn btn-outline-primary btn-sm">Login</button>
-              </div>
+              </div> */}
             </div>
           </div>
 
