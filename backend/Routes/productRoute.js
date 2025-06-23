@@ -1,23 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const Product = require('../models/product');
-const productController = require('../controllers/productController');
+const productController = require('../Contollers/productController');
 
-// Get all products
-router.get('/', async (req, res) => {
-  const products = await Product.find();
-  res.json(products);
-});
-
-
-
-router.post('/products', productController.createProduct);         // CREATE
-router.get('/products', productController.getAllProducts);         // READ ALL
-router.get('/products/:id', productController.getProductById);     // READ ONE
-router.put('/products/:id', productController.updateProduct);      // UPDATE
-router.delete('/products/:id', productController.deleteProduct);   // DELETE
+// CRUD Routes for Products
+router.post('/', productController.createProduct);          // POST /api/products
+router.get('/', productController.getAllProducts);          // GET /api/products
+router.get('/:id', productController.getProductById);       // GET /api/products/:id
+router.put('/:id', productController.updateProduct);        // PUT /api/products/:id
+router.delete('/:id', productController.deleteProduct);     // DELETE /api/products/:id
 
 module.exports = router;
-
-
-

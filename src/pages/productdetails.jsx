@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect} from 'react';
+import { useParams } from 'react-router-dom';
+import axios from 'axios';
 import logo from '../assets/logo-symbol.png';
 import brand from '../assets/Brand.png';
 import profileIcon from '../assets/Profile.png';
@@ -33,22 +35,30 @@ import logoimg from '../assets/logo-colored.png';
 
 export default function Productdetails() {
 
-  const { id } = useParams();
-  const [product, setProduct] = useState(null);
-
-  useEffect(() => {
-    fetch(`http://localhost:5000/api/products/${id}`)
-      .then(res => res.json())
-      .then(data => setProduct(data));
-  }, [id]);
-
-  if (!product) return <div>Loading...</div>;
-
+  
   const [selectedHelp, setSelectedHelp] = useState('Help');
   const [shipTo, setShipTo] = useState({ name: 'USA', flag: flagUSD });
 
   const handleHelpSelect = (label) => setSelectedHelp(label);
   const handleShipToSelect = (name, flag) => setShipTo({ name, flag });
+  const { id } = useParams();
+  const [product, setProduct] = useState(null);
+
+  const fetchProduct = async () => {
+    try {
+      const res = await axios.get(`http://localhost:5000/api/products/${id}`);
+      setProduct(res.data);
+    } catch (err) {
+      console.error('Failed to fetch product:', err.message);
+    }
+  };
+
+  useEffect(() => {
+    fetchProduct();
+  }, [id]);
+
+  if (!product) return <p className="text-center mt-5">Loading product...</p>;
+
 
   return (
     <>
@@ -177,22 +187,16 @@ export default function Productdetails() {
 
 {/* Product Details Box */}
 <div className="container shadow-sm p-4 mb-4 rounded" style={{ backgroundColor: '#f8f9fa' }}>
-
   <div className="row">
 
     {/* Left Side: Product Image and Thumbnails */}
     <div className="col-md-4">
-      {/* Main Image */}
       <img
-        src={greyshirt}
+        src={`http://localhost:5000/${product.image}`}
         alt="Product"
         className="img-fluid border mb-3"
       />
 
-      {/* Thumbnails */}
-      <div className="d-flex gap-2">
-        <img src={gallery} className="img-thumbnail" alt="Thumb1" />
-      </div>
     </div>
 
     {/* Middle Info Section */}
@@ -214,11 +218,16 @@ export default function Productdetails() {
 
       {/* Product Info */}
       <div>
-        <p className="mb-1"><strong>Material:</strong> 100% Cotton</p>
-        <p className="mb-1"><strong>Fit:</strong> Regular Fit</p>
-        <p className="mb-1"><strong>Color:</strong>Light gery</p>
-        <p className="mb-1"><strong>Size:</strong> M, L, XL</p>
-        <p className="mb-1"><strong>Description:</strong> Comfortable summer shirt perfect for casual wear. Breathable and durable with a modern look.</p>
+        <h3>{product.name}</h3>
+        <p><strong>Category:</strong> {product.category}</p>
+        <p><strong>Description:</strong> {product.description}</p>
+        <p><strong>Price:</strong> ${product.price}</p>
+        <p><strong>Stock:</strong> {product.stock}</p>
+      </div>
+
+      {/* Save for Later Button */}
+      <div className="text-end mt-3">
+        <button className="btn btn-outline-warning">⭐ Save for Later</button>
       </div>
     </div>
 
@@ -226,7 +235,6 @@ export default function Productdetails() {
     <div className="col-md-3">
       <div className="border rounded p-3 bg-light">
         <h6 className="fw-bold mb-2">Seller Info</h6>
-
         <p className="mb-1"><strong>Name:</strong> Global Fashions</p>
         <p className="mb-1 d-flex align-items-center">
           <strong>Country:</strong>
@@ -234,94 +242,17 @@ export default function Productdetails() {
         </p>
         <p className="mb-1">✅ Verified Seller</p>
         <p className="mb-3">🌍 Sells Worldwide</p>
-
         <button className="btn btn-outline-primary btn-sm w-100 mb-2">Send Inquiry</button>
         <button className="btn btn-outline-secondary btn-sm w-100">Seller's Profile</button>
       </div>
     </div>
 
-  </div>
 
-  {/* Save for Later Button */}
-  <div className="text-end mt-3">
-    <button className="btn btn-outline-warning">⭐ Save for Later</button>
-  </div>
 
-</div>
-{/* Product Detail Tabs and Side Image Strip */}
-<div className="container-fluid mt-4 px-3">
-  <div className="d-flex gap-3 align-items-start">
-
-    {/* LEFT: Main Tabs Section */}
-    <div
-      className="flex-grow-1 bg-white border rounded p-3 d-flex flex-column"
-      style={{ height: '70vh' }}
-    >
-      {/* Tab Buttons */}
-      <div className="d-flex mb-3 border-bottom pb-2 gap-3">
-        {['Description', 'Reviews', 'Shipping', 'About Seller'].map((tab, idx) => (
-          <button key={idx} className="btn btn-outline-primary fw-bold btn-sm">
-            {tab}
-          </button>
-        ))}
-      </div>
-
-      {/* Tab Content - Description */}
-      <div className="flex-grow-1 overflow-auto">
-        <h5 className="fw-bold mb-2">Product Description</h5>
-        <p>
-          This summer shirt is crafted with breathable cotton to keep you cool and stylish in warm weather.
-          Designed with modern patterns, it's perfect for casual outings, beach days, or relaxed evenings.
-        </p>
-
-        <h6 className="mt-4 fw-bold">Specifications</h6>
-        <table className="table table-striped table-bordered w-75">
-          <tbody>
-            <tr><th>Material</th><td>100% Cotton</td></tr>
-            <tr><th>Color</th><td>Light grey</td></tr>
-            <tr><th>Sizes Available</th><td>S, M, L, XL</td></tr>
-            <tr><th>Wash Type</th><td>Machine Wash</td></tr>
-          </tbody>
-        </table>
-
-        <h6 className="mt-4 fw-bold">Features</h6>
-        <ul className="list-unstyled">
-          <li>✅ Breathable fabric</li>
-          <li>✅ Lightweight and comfortable</li>
-          <li>✅ Stylish design</li>
-          <li>✅ Available in multiple sizes</li>
-        </ul>
-      </div>
-    </div>
-
-{/* RIGHT: Vertical Image Strip */}
-<div
-  className="bg-white border rounded p-2 d-flex flex-column gap-3"
-  style={{ width: '160px', height: '45vh', overflowY: 'auto' }}
->
-  <h6 className="text-center fw-bold">You May Also Like</h6>
-  {[
-    { src: shirt, name: 'Casual Blue Shirt', price: 19.99 },
-    { src: jacket, name: 'Winter Jacket', price: 21.49 },
-    { src: coat, name: 'Classic Blue Coat', price: 18.75 },
-    { src: bag, name: 'Blue Bag', price: 22.99 },
-    { src: shorts, name: 'Denim Blue Shorts', price: 24.59 },
-  ].map((item, index) => (
-    <div key={index} className="border p-1 rounded bg-white text-center">
-      <img
-        src={item.src}
-        alt={`Image ${index + 1}`}
-        className="img-fluid mb-1"
-        style={{ maxHeight: '60px', objectFit: 'contain' }}
-      />
-      <h6 className="mb-0 small">{item.name}</h6>
-      <p className="text-muted mb-0 small">${item.price.toFixed(2)}</p>
-    </div>
-  ))}
 </div>
 
 </div>
-</div>
+
 
 
 {/* Related Items - Clean Horizontal Layout */}

@@ -1,4 +1,5 @@
-import React, { useState,useEffect} from 'react';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 import logo from '../assets/logo-symbol.png';
 import brand from '../assets/Brand.png';
 import profileIcon from '../assets/Profile.png';
@@ -37,28 +38,43 @@ import flagCHINA from '../assets/CHINA.png';
 
 export default function Cart() {
 
-   const [cartItems, setCartItems] = useState([]);
+ const [cart, setCart] = useState(null);
+  const [selectedHelp, setSelectedHelp] = useState('Help');
+  const [shipTo, setShipTo] = useState({ name: 'USA', flag: '' });
+
+  const fetchCart = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.get('http://localhost:5000/api/cart', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setCart(res.data);
+    } catch (err) {
+      console.error('Error loading cart', err.message);
+    }
+  };
 
   useEffect(() => {
-    const storedCart = JSON.parse(localStorage.getItem('cart')) || [];
-    Promise.all(
-      storedCart.map(id =>
-        fetch(`http://localhost:5000/api/products/${id}`).then(res => res.json())
-      )
-    ).then(setCartItems);
+    fetchCart();
   }, []);
 
-  const [selectedHelp, setSelectedHelp] = useState('Help');
-    const [shipTo, setShipTo] = useState({ name: 'USA', flag: flagUSD });
-  
-    const handleHelpSelect = (label) => setSelectedHelp(label);
-    const handleShipToSelect = (name, flag) => setShipTo({ name, flag });
+  const removeItem = async (productId) => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`http://localhost:5000/api/cart/remove/${productId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      fetchCart();
+    } catch (err) {
+      console.error('Error removing item:', err.message);
+    }
+  };
 
+  const handleHelpSelect = (label) => setSelectedHelp(label);
+  const handleShipToSelect = (name, flag) => setShipTo({ name, flag });
 
   return (
-    
     <>
-
       {/* Header */}
       <div className="container-fluid bg-light py-2 px-3 border-bottom">
         <div className="row align-items-center justify-content-between gx-2">
@@ -73,7 +89,7 @@ export default function Cart() {
             <HeaderIcon img={profileIcon} onClick={() => console.log('Go to Profile')} />
             <HeaderIcon img={ordersIcon} onClick={() => console.log('Go to Orders')} />
             <HeaderIcon img={msgIcon} onClick={() => console.log('Go to Messages')} />
-            <HeaderIcon img={cartIcon} onClick={() => console.log('Go to Cart')} />
+            <HeaderIcon img={cartIcon} onClick={() => window.location.href = '/cart'} />
           </div>
         </div>
       </div>
@@ -81,83 +97,90 @@ export default function Cart() {
       {/* Divider */}
       <div className="border-bottom my-2"></div>
 
+      {/* Cart Content */}
+      <div className="bg-light min-vh-100 px-3 py-4">
+        <h2 className="mb-4 fw-bold">Your Cart</h2>
 
-  <div className="bg-light min-vh-100 px-3 py-4">
-      {/* Cart Heading */}
-      <h2 className="mb-4 fw-bold">Cart (3)</h2>
-
-      {/* Main Content */}
-      <div className="row g-4">
-        {/* Left: Product Box */}
-        <div className="col-lg-8">
-          <div className="bg-white p-4 rounded shadow-sm">
-
-            {/* Product 1 */}
-<div className="d-flex border-bottom py-3">
-  <img src={shirt} alt="Blue Shirt" style={{ width: '100px', height: '100px', objectFit: 'cover' }} className="me-3" />
-  <div className="flex-grow-1">
-    <h5>Blue Shirt</h5>
-    <p className="mb-1">A stylish blue shirt perfect for casual wear.</p>
-    <p className="text-muted mb-2">Seller: ShirtHub</p>
-    <div className="d-flex align-items-center mb-2">
-      <strong className="me-3">$29.99</strong>
-      <select className="form-select form-select-sm w-auto">
-        {[1, 2, 3, 4, 5].map((n) => <option key={n}>{n}</option>)}
-      </select>
-    </div>
-    <button className="btn btn-sm btn-outline-danger me-2">Remove</button>
-    <button className="btn btn-sm btn-outline-secondary">Save for Later</button>
-  </div>
-</div>
-
-{/* Product 2 */}
-<div className="d-flex border-bottom py-3">
-  <img src={coat} alt="Blue Coat" style={{ width: '100px', height: '100px', objectFit: 'cover' }} className="me-3" />
-  <div className="flex-grow-1">
-    <h5>Blue Coat</h5>
-    <p className="mb-1">Warm and elegant coat for winter days.</p>
-    <p className="text-muted mb-2">Seller: CoatCorner</p>
-    <div className="d-flex align-items-center mb-2">
-      <strong className="me-3">$59.99</strong>
-      <select className="form-select form-select-sm w-auto">
-        {[1, 2, 3, 4, 5].map((n) => <option key={n}>{n}</option>)}
-      </select>
-    </div>
-    <button className="btn btn-sm btn-outline-danger me-2">Remove</button>
-    <button className="btn btn-sm btn-outline-secondary">Save for Later</button>
-  </div>
-</div>
-
-{/* Product 3 */}
-<div className="d-flex border-bottom py-3">
-  <img src={headphones} alt="Headphones" style={{ width: '100px', height: '100px', objectFit: 'cover' }} className="me-3" />
-  <div className="flex-grow-1">
-    <h5>Headphones</h5>
-    <p className="mb-1">Noise-cancelling over-ear headphones.</p>
-    <p className="text-muted mb-2">Seller: SoundWorld</p>
-    <div className="d-flex align-items-center mb-2">
-      <strong className="me-3">$99.99</strong>
-      <select className="form-select form-select-sm w-auto">
-        {[1, 2, 3, 4, 5].map((n) => <option key={n}>{n}</option>)}
-      </select>
-    </div>
-    <button className="btn btn-sm btn-outline-danger me-2">Remove</button>
-    <button className="btn btn-sm btn-outline-secondary">Save for Later</button>
-  </div>
-</div>
-
-
-            {/* Bottom Buttons */}
-            <div className="d-flex justify-content-between mt-4">
-              <button className="btn btn-outline-secondary">
-                ← Back to Shop
-              </button>
-              <button className="btn btn-outline-danger">
-                Remove All
-              </button>
+        <div className="container mt-4">
+          <div className="row g-4">
+            {/* Left: Product Items */}
+            <div className="col-lg-8">
+              <div className="bg-white p-4 rounded shadow-sm">
+                <h4>Your Cart</h4>
+                {!cart ? (
+                  <p>Loading cart...</p>
+                ) : cart.items.length === 0 ? (
+                  <p>Cart is empty</p>
+                ) : (
+                  cart.items.map((item) => (
+                    <div key={item.productId._id} className="d-flex border-bottom py-3">
+                      <img
+                        src={`http://localhost:5000/${item.productId.image}`}
+                        alt={item.productId.name}
+                        style={{ width: '100px', height: '100px', objectFit: 'cover' }}
+                        className="me-3"
+                      />
+                      <div className="flex-grow-1">
+                        <h5>{item.productId.name}</h5>
+                        <p className="mb-1">{item.productId.description}</p>
+                        <strong className="me-3">${item.productId.price}</strong>
+                        <p>Qty: {item.quantity}</p>
+                        <button
+                          className="btn btn-sm btn-outline-danger me-2"
+                          onClick={() => removeItem(item.productId._id)}
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
             </div>
-          </div>
-        </div>
+
+            {/* Right: Summary */}
+            <div className="col-lg-4">
+              <div className="bg-white p-3 mb-3 rounded shadow-sm">
+                <h6>Have a coupon?</h6>
+                <div className="input-group mt-2">
+                  <input type="text" className="form-control" placeholder="Enter coupon code" />
+                  <button className="btn btn-primary">Apply</button>
+                </div>
+              </div>
+
+              <div className="bg-white p-3 rounded shadow-sm mb-3">
+                <div className="d-flex justify-content-between mb-2">
+                  <span>Subtotal</span>
+                  <span>$149.97</span>
+                </div>
+                <div className="d-flex justify-content-between mb-2">
+                  <span>Discount</span>
+                  <span>-$10.00</span>
+                </div>
+                <div className="d-flex justify-content-between mb-2">
+                  <span>Tax</span>
+                  <span>$5.00</span>
+                </div>
+                <hr />
+                <div className="d-flex justify-content-between fw-bold mb-3">
+                  <span>Total</span>
+                  <span>$144.97</span>
+                </div>
+                <button className="btn btn-success w-100">Checkout</button>
+              </div>
+
+              <div className="d-flex justify-content-between align-items-center">
+                {[payment1, payment2, payment3, payment4, payment5].map((img, idx) => (
+                  <img
+                    key={idx}
+                    src={img}
+                    alt={`payment-${idx}`}
+                    style={{ width: '40px', height: '26px', objectFit: 'contain' }}
+                  />
+                ))}
+              </div>
+            </div>
+      
 
         {/* Right: Summary Boxes */}
         <div className="col-lg-4">
@@ -195,43 +218,48 @@ export default function Cart() {
           {/* Payment Methods */}
           <div className="d-flex justify-content-between align-items-center">
             {[payment1, payment2, payment3, payment4, payment5].map((img, idx) => (
-              <img key={idx} src={img} alt={`payment-${idx}`} style={{ width: '40px', height: '26px', objectFit: 'contain' }} />
+              <img
+                key={idx}
+                src={img}
+                alt={`payment-${idx}`}
+                style={{ width: '40px', height: '26px', objectFit: 'contain' }}
+              />
             ))}
           </div>
         </div>
       </div>
+
+      {/* Bottom Info Row: Secure Payment / Support / Delivery */}
+      <div className="pt-4 ps-3">
+        <div className="d-flex justify-content-start gap-4">
+          {/* Secure Payment */}
+          <div className="d-flex align-items-center">
+            <button className="btn border-0 p-2">
+              <img src={btn1} alt="Lock Icon" style={{ width: '40px' }} />
+            </button>
+            <span className="ms-2">Secure Payment</span>
+          </div>
+
+          {/* Customer Support */}
+          <div className="d-flex align-items-center">
+            <button className="btn border-0 p-2">
+              <img src={btn2} alt="Support Icon" style={{ width: '40px' }} />
+            </button>
+            <span className="ms-2">Customer Support</span>
+          </div>
+
+          {/* Free Delivery */}
+          <div className="d-flex align-items-center">
+            <button className="btn border-0 p-2">
+              <img src={btn3} alt="Cart Icon" style={{ width: '40px' }} />
+            </button>
+            <span className="ms-2">Free Delivery</span>
+          </div>
+        </div>
+      </div>
     </div>
-
-
-<div className="mt-4 ps-4">
-  <div className="d-flex justify-content-start gap-4">
-
-    {/* Button 1 + Heading */}
-    <div className="d-flex align-items-center">
-      <button className="btn border-0 p-2">
-        <img src={btn1} alt="Lock Icon" style={{ width: '40px' }} />
-      </button>
-      <span className="ms-2">Secure Payment</span>
     </div>
-
-    {/* Button 2 + Heading */}
-    <div className="d-flex align-items-center">
-      <button className="btn border-0 p-2">
-        <img src={btn2} alt="Support Icon" style={{ width: '40px' }} />
-      </button>
-      <span className="ms-2">Customer Support</span>
-    </div>
-
-    {/* Button 3 + Heading */}
-    <div className="d-flex align-items-center">
-      <button className="btn border-0 p-2">
-        <img src={btn3} alt="Cart Icon" style={{ width: '40px' }} />
-      </button>
-      <span className="ms-2">Free Delivery</span>
-    </div>
-
-  </div>
-</div>
+    
 
 
 {/* Related Items - Clean Horizontal Layout */}
