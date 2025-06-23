@@ -32,6 +32,18 @@ import logoimg from '../assets/logo-colored.png';
 
 
 export default function Productdetails() {
+
+  const { id } = useParams();
+  const [product, setProduct] = useState(null);
+
+  useEffect(() => {
+    fetch(`http://localhost:5000/api/products/${id}`)
+      .then(res => res.json())
+      .then(data => setProduct(data));
+  }, [id]);
+
+  if (!product) return <div>Loading...</div>;
+
   const [selectedHelp, setSelectedHelp] = useState('Help');
   const [shipTo, setShipTo] = useState({ name: 'USA', flag: flagUSD });
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect} from 'react';
 import logo from '../assets/logo-symbol.png';
 import brand from '../assets/Brand.png';
 import profileIcon from '../assets/Profile.png';
@@ -36,6 +36,17 @@ import flagNEWZEALAND from '../assets/Flag_of_New_Zealand.svg.png';
 import flagCHINA from '../assets/CHINA.png';
 
 export default function Cart() {
+
+   const [cartItems, setCartItems] = useState([]);
+
+  useEffect(() => {
+    const storedCart = JSON.parse(localStorage.getItem('cart')) || [];
+    Promise.all(
+      storedCart.map(id =>
+        fetch(`http://localhost:5000/api/products/${id}`).then(res => res.json())
+      )
+    ).then(setCartItems);
+  }, []);
 
   const [selectedHelp, setSelectedHelp] = useState('Help');
     const [shipTo, setShipTo] = useState({ name: 'USA', flag: flagUSD });

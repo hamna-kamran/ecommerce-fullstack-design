@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import logo from '../assets/logo-symbol.png';
 import brand from '../assets/Brand.png';
 import profileIcon from '../assets/Profile.png';
@@ -75,6 +75,15 @@ import logoimg from '../assets/logo-colored.png';
 
 
 export default function Home() {
+
+   const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    fetch('http://localhost:5000/api/products')
+      .then(res => res.json())
+      .then(data => setProducts(data.slice(0, 4))); // show 4 featured
+  }, []);
+
   const [selectedHelp, setSelectedHelp] = useState('Help');
   const [shipTo, setShipTo] = useState({ name: 'USA', flag: flagUSD });
 
@@ -83,6 +92,7 @@ export default function Home() {
 
   return (
     <>
+    
       {/* Header */}
       <div className="container-fluid bg-light py-2 px-3 border-bottom">
         <div className="row align-items-center justify-content-between gx-2">
