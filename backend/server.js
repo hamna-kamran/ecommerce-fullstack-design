@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');  // ✅ Load environment variables
 const productRoutes = require('./Routes/productRoute');
-const connectDB = require('./config/db');  // ✅ Import DB connection
+const connectDB = require('./Config/db');  // ✅ Import DB connection
 const authRoutes = require('./Routes/authRoute');
 const cartRoutes = require('./Routes/cartRoutes');
 
