@@ -46,7 +46,7 @@ export default function Productdetails() {
 
   const fetchProduct = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/products/${id}`);
+      const res = await axios.get(`https://ecommerce-backend-h3ra.onrender.com/api/products/${id}`);
       setProduct(res.data);
     } catch (err) {
       console.error('Failed to fetch product:', err.message);
@@ -192,7 +192,7 @@ export default function Productdetails() {
     {/* Left Side: Product Image and Thumbnails */}
     <div className="col-md-4">
       <img
-        src={`http://localhost:5000/${product.image}`}
+        src={`https://ecommerce-backend-h3ra.onrender.com/${product.image}`}
         alt="Product"
         className="img-fluid border mb-3"
       />

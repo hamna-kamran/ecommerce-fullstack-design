@@ -17,7 +17,7 @@ export default function AdminPage() {
 
   const fetchProducts = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/products');
+      const res = await axios.get('https://ecommerce-backend-h3ra.onrender.com/api/products');
       setProducts(res.data);
     } catch (err) {
       console.error('Error fetching products:', err.message);
@@ -30,13 +30,13 @@ export default function AdminPage() {
     try {
       if (editId) {
         // Edit existing product
-        await axios.put(`http://localhost:5000/api/products/${editId}`, form, {
+        await axios.put(`https://ecommerce-backend-h3ra.onrender.com/api/products/${editId}`, form, {
           headers: { Authorization: `Bearer ${token}` },
         });
         alert('Product updated');
       } else {
         // Add new product
-        await axios.post('http://localhost:5000/api/products', form, {
+        await axios.post('https://ecommerce-backend-h3ra.onrender.com/api/products', form, {
           headers: { Authorization: `Bearer ${token}` },
         });
         alert('Product added');
@@ -54,7 +54,7 @@ export default function AdminPage() {
     if (!window.confirm('Are you sure you want to delete this product?')) return;
 
     try {
-      await axios.delete(`http://localhost:5000/api/products/${id}`, {
+      await axios.delete(`https://ecommerce-backend-h3ra.onrender.com/api/products/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       alert('Product deleted');
@@ -133,7 +133,7 @@ export default function AdminPage() {
             <div key={product._id} className="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
               <div className="card h-100">
                 <img
-                  src={`http://localhost:5000/${product.image}`}
+                  src={`https://ecommerce-backend-h3ra.onrender.com/${product.image}`}
                   className="card-img-top"
                   alt={product.name}
                   style={{ height: '200px', objectFit: 'cover' }}

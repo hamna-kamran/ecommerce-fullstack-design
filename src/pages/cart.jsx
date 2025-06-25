@@ -45,7 +45,7 @@ export default function Cart() {
   const fetchCart = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get('http://localhost:5000/api/cart', {
+      const res = await axios.get('https://ecommerce-backend-h3ra.onrender.com/api/cart', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setCart(res.data);
@@ -61,7 +61,7 @@ export default function Cart() {
   const removeItem = async (productId) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:5000/api/cart/remove/${productId}`, {
+      await axios.delete(`https://ecommerce-backend-h3ra.onrender.com/api/cart/remove/${productId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchCart();
@@ -115,7 +115,7 @@ export default function Cart() {
                   cart.items.map((item) => (
                     <div key={item.productId._id} className="d-flex border-bottom py-3">
                       <img
-                        src={`http://localhost:5000/${item.productId.image}`}
+                        src={`https://ecommerce-backend-h3ra.onrender.com/${item.productId.image}`}
                         alt={item.productId.name}
                         style={{ width: '100px', height: '100px', objectFit: 'cover' }}
                         className="me-3"

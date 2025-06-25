@@ -37,9 +37,9 @@ export default function ProductView() {
   try {
     const token = localStorage.getItem('token');
     await axios.post(
-      'http://localhost:5000/api/cart/add',
-      { productId, quantity: 1 },
-      { headers: { Authorization: `Bearer ${token}` } }
+      'https://ecommerce-backend-h3ra.onrender.com/api/cart/add',
+  { productId, quantity: 1 },
+  { headers: { Authorization: `Bearer ${token}` } }
     );
     alert('Product added to cart');
   } catch (err) {
@@ -51,7 +51,7 @@ export default function ProductView() {
 
 
   useEffect(() => {
-    axios.get('http://localhost:5000/api/products')
+    axios.get('https://ecommerce-backend-h3ra.onrender.com/api/products')
       .then((res) => {
         setProducts(res.data);
       })
@@ -422,7 +422,7 @@ const filteredProducts = products.filter((product) => {
       <div key={product._id} className="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
         <div className="card h-100">
           <img
-            src={`http://localhost:5000/${product.image}`}
+            src={`https://ecommerce-backend-h3ra.onrender.com/${product.image}`}
             className="card-img-top"
             alt={product.name}
             style={{ height: '200px', objectFit: 'cover' }}
