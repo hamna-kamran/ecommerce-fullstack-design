@@ -38,25 +38,31 @@ import flagCHINA from '../assets/CHINA.png';
 
 export default function Cart() {
 
- const [cart, setCart] = useState(null);
   const [selectedHelp, setSelectedHelp] = useState('Help');
   const [shipTo, setShipTo] = useState({ name: 'USA', flag: '' });
 
-  const fetchCart = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const res = await axios.get('https://ecommerce-backend-h3ra.onrender.com/api/cart', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setCart(res.data);
-    } catch (err) {
-      console.error('Error loading cart', err.message);
-    }
-  };
+const [cart, setCart] = useState(null);
 
-  useEffect(() => {
-    fetchCart();
-  }, []);
+const fetchCart = async () => {
+  try {
+    const token = localStorage.getItem('token');
+
+    const res = await axios.get('https://ecommerce-backend-h3ra.onrender.com/api/cart', {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    // ✅ Safely access the items array and filter out null products
+    const validItems = res.data?.items?.filter(item => item.productId !== null) || [];
+
+    setCart({ ...res.data, items: validItems });
+  } catch (err) {
+    console.error('❌ Error loading cart:', err.response?.data || err.message);
+  }
+};
+
+useEffect(() => {
+  fetchCart();
+}, []);
 
   const removeItem = async (productId) => {
     try {
@@ -98,45 +104,50 @@ export default function Cart() {
       <div className="border-bottom my-2"></div>
 
       {/* Cart Content */}
-      <div className="bg-light min-vh-100 px-3 py-4">
-        <h2 className="mb-4 fw-bold">Your Cart</h2>
+<div className="bg-light min-vh-100 px-3 py-4">
+  <h2 className="mb-4 fw-bold">Your Cart</h2>
 
-        <div className="container mt-4">
-          <div className="row g-4">
-            {/* Left: Product Items */}
-            <div className="col-lg-8">
-              <div className="bg-white p-4 rounded shadow-sm">
-                <h4>Your Cart</h4>
-                {!cart ? (
-                  <p>Loading cart...</p>
-                ) : cart.items.length === 0 ? (
-                  <p>Cart is empty</p>
-                ) : (
-                  cart.items.map((item) => (
-                    <div key={item.productId._id} className="d-flex border-bottom py-3">
-                      <img
-                        src={`https://ecommerce-backend-h3ra.onrender.com/${item.productId.image}`}
-                        alt={item.productId.name}
-                        style={{ width: '100px', height: '100px', objectFit: 'cover' }}
-                        className="me-3"
-                      />
-                      <div className="flex-grow-1">
-                        <h5>{item.productId.name}</h5>
-                        <p className="mb-1">{item.productId.description}</p>
-                        <strong className="me-3">${item.productId.price}</strong>
-                        <p>Qty: {item.quantity}</p>
-                        <button
-                          className="btn btn-sm btn-outline-danger me-2"
-                          onClick={() => removeItem(item.productId._id)}
-                        >
-                          Remove
-                        </button>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
+  <div className="container mt-4">
+    <div className="row g-4">
+      {/* Left: Product Items */}
+      <div className="col-lg-8">
+        <div className="bg-white p-4 rounded shadow-sm">
+          <h4>Your Cart</h4>
+          
+          {!cart ? (
+            <p>Loading cart...</p>
+          ) : !cart.items || cart.items.length === 0 ? (
+            <p>Cart is empty</p>
+          ) : (
+            cart.items
+              .filter((item) => item.productId) // ✅ Filter out items with null productId
+              .map((item) => (
+                <div key={item.productId._id} className="d-flex border-bottom py-3">
+                  <img
+                    src={`https://ecommerce-backend-h3ra.onrender.com/${item.productId.image}`}
+                    alt={item.productId.name || "Product"}
+                    style={{ width: '100px', height: '100px', objectFit: 'cover' }}
+                    className="me-3"
+                  />
+                  <div className="flex-grow-1">
+                    <h5>{item.productId.name}</h5>
+                    <p className="mb-1">{item.productId.description}</p>
+                    <strong className="me-3">${item.productId.price}</strong>
+                    <p>Qty: {item.quantity}</p>
+                    <button
+                      className="btn btn-sm btn-outline-danger me-2"
+                      onClick={() => removeItem(item.productId._id)}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              ))
+          )}
+        </div>
+      </div>
+    
+
 
             {/* Right: Summary */}
             <div className="col-lg-4">
@@ -180,55 +191,10 @@ export default function Cart() {
                 ))}
               </div>
             </div>
+            </div>
       
 
-        {/* Right: Summary Boxes */}
-        <div className="col-lg-4">
-          {/* Coupon Box */}
-          <div className="bg-white p-3 mb-3 rounded shadow-sm">
-            <h6>Have a coupon?</h6>
-            <div className="input-group mt-2">
-              <input type="text" className="form-control" placeholder="Enter coupon code" />
-              <button className="btn btn-primary">Apply</button>
-            </div>
-          </div>
-
-          {/* Summary Box */}
-          <div className="bg-white p-3 rounded shadow-sm mb-3">
-            <div className="d-flex justify-content-between mb-2">
-              <span>Subtotal</span>
-              <span>$149.97</span>
-            </div>
-            <div className="d-flex justify-content-between mb-2">
-              <span>Discount</span>
-              <span>-$10.00</span>
-            </div>
-            <div className="d-flex justify-content-between mb-2">
-              <span>Tax</span>
-              <span>$5.00</span>
-            </div>
-            <hr />
-            <div className="d-flex justify-content-between fw-bold mb-3">
-              <span>Total</span>
-              <span>$144.97</span>
-            </div>
-            <button className="btn btn-success w-100">Checkout</button>
-          </div>
-
-          {/* Payment Methods */}
-          <div className="d-flex justify-content-between align-items-center">
-            {[payment1, payment2, payment3, payment4, payment5].map((img, idx) => (
-              <img
-                key={idx}
-                src={img}
-                alt={`payment-${idx}`}
-                style={{ width: '40px', height: '26px', objectFit: 'contain' }}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-
+        
       {/* Bottom Info Row: Secure Payment / Support / Delivery */}
       <div className="pt-4 ps-3">
         <div className="d-flex justify-content-start gap-4">
